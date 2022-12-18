@@ -1,19 +1,41 @@
+# docker compose schema version
 version: "3.7"
 
+# list of services
 services:
+
+  # web service item-app
   item-app:
-    build: .
+
+    # base image from container registry ghcr.io
+    image: ghcr.io/mohammadafandy/item-app:v1
+
+    # mapping container port 8080 to host port 80
     ports:
       - 80:8080
+
+    # start service item-db before starting service item-app
     depends_on:
       - item-db
+
+    # always restart if container stopped
     restart: always
 
+  # db service item-app
   item-db:
+
+    # base image from container registry docker.io
     image: mongo:3
+
+    # mount volume app-db to path /data/db in container
     volumes:
       - app-db:/data/db
+
+    # always restart if container stopped
     restart: always
 
+# list of volumes
 volumes:
+
+  # create volume app-db
   app-db:
