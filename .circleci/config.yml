@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  lint:
+  lint-dockerfile:
     docker:
       - image: hadolint/hadolint
     steps:
@@ -10,7 +10,7 @@ jobs:
           name: Run Lint
           command: hadolint Dockerfile
 
-  build-and-test:
+  test-app:
     working_directory: ~/repo
     docker:
       - image: circleci/golang:1.15.8
@@ -32,7 +32,7 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports
 
-  build-and-push:
+  build-app-karsajobs:
     docker:
       - image: cimg/base
     steps:
@@ -42,12 +42,8 @@ jobs:
           command: build_push_image_karsajobs.sh
 
 workflows:
-  lint-dockerfile:
+  deploy:
     jobs:
-      - lint
-  test-app:
-    jobs:
-      - build-and-test
-  build-app-karsajobs:
-    jobs:
-      - build-and-push
+      - lint-dockerfile
+      - test-app
+      - build-app-karsajobs
