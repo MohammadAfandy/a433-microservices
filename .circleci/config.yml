@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   lint-dockerfile:
     docker:
-      - image: cimg/base
+      - image: cimg/base:2023.01
     steps:
       - checkout
       - setup_remote_docker
@@ -33,7 +33,7 @@ jobs:
 
   build-app-karsajobs:
     docker:
-      - image: cimg/base
+      - image: cimg/base:2023.01
     steps:
       - checkout
       - setup_remote_docker
