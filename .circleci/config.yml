@@ -39,7 +39,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build and Push Docker
-          command: build_push_image_karsajobs.sh
+          command: bash build_push_image_karsajobs.sh
 
 workflows:
   deploy:
