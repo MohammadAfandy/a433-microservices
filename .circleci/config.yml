@@ -41,12 +41,37 @@ jobs:
           name: Build and Push Docker
           command: bash build_push_image_karsajobs.sh
 
+  build-app-karsajobs-ui:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and Push Docker
+          command: bash build_push_image_karsajobs-ui.sh
+
 workflows:
   deploy:
     jobs:
       - lint-dockerfile
-      - test-app
+      - test-app:
+          filters:
+              branches:
+                only:
+                  - karsajobs
       - build-app-karsajobs:
           requires:
             - lint-dockerfile
             - test-app
+          filters:
+              branches:
+                only:
+                  - karsajobs
+      - build-app-karsajobs-ui:
+          requires:
+            - lint-dockerfile
+          filters:
+              branches:
+                only:
+                  - karsajobs-ui
