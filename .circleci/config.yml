@@ -1,0 +1,77 @@
+version: 2.1
+
+jobs:
+  lint-dockerfile:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run Lint
+          command: docker run --rm -i hadolint/hadolint < Dockerfile
+
+  test-app:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.15.8
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run Test
+          command: go test -v -short --count=1 $(go list ./...)
+
+  build-app-karsajobs:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and Push Docker
+          command: bash build_push_image_karsajobs.sh
+
+  build-app-karsajobs-ui:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and Push Docker
+          command: bash build_push_image_karsajobs-ui.sh
+
+workflows:
+  deploy:
+    jobs:
+      - lint-dockerfile
+      - test-app:
+          filters:
+              branches:
+                only:
+                  - karsajobs
+      - build-app-karsajobs:
+          requires:
+            - lint-dockerfile
+            - test-app
+          filters:
+              branches:
+                only:
+                  - karsajobs
+      - build-app-karsajobs-ui:
+          requires:
+            - lint-dockerfile
+          filters:
+              branches:
+                only:
+                  - karsajobs-ui
